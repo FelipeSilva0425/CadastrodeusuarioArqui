@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Arqui Centro de Treinamento de Muay Thai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Estilo geral */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .logo {
+            max-width: 120px;
+            width: 100%;
+            border-radius: 50%;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            color: #d9534f;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .radio-group {
+            margin-top: 10px;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: normal;
+            color: #fff;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo Arqui Centro de Treinamento" class="logo">
+    </div>
+
+    <div class="container">
+        <h1>Arqui Centro de Treinamento de Muay Thai</h1>
+
+        <form id="formularioCadastro">
+            <label for="nome">Nome Completo:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="idade">Idade:</label>
+            <input type="number" id="idade" name="idade" min="5" max="100" required>
+
+            <label for="sexo">Sexo:</label>
+            <select id="sexo" name="sexo" required>
+                <option value="">Selecione</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="outro">Outro</option>
+            </select>
+
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco" required>
+
+            <label for="celular">Celular:</label>
+            <input type="tel" id="celular" name="celular" placeholder="(XX) XXXXX-XXXX" required>
+
+            <label>Já fez aula experimental de Muay Thai?</label>
+            <div class="radio-group">
+                <label><input type="radio" name="aulaExperimental" value="sim" required> Sim</label>
+                <label><input type="radio" name="aulaExperimental" value="nao"> Não</label>
+            </div>
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <!-- Bibliotecas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <script>
+        // Inicializa EmailJS
+        emailjs.init("qreP02pqrYKSiGUtU"); // Substitua por sua chave pública, se necessário
+
+        document.getElementById("formularioCadastro").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            const data = {
+                nome: formData.get("nome"),
+                idade: formData.get("idade"),
+                sexo: formData.get("sexo"),
+                email: formData.get("email"),
+                endereco: formData.get("endereco"),
+                celular: formData.get("celular"),
+                aula_experimental: formData.get("aulaExperimental")
+            };
+
+            // Gerar PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(14);
+            doc.text("Dados do Cadastro - Arqui Centro de Treinamento", 10, 10);
+            doc.text(`Nome: ${data.nome}`, 10, 20);
+            doc.text(`Idade: ${data.idade}`, 10, 30);
+            doc.text(`Sexo: ${data.sexo}`, 10, 40);
+            doc.text(`E-mail: ${data.email}`, 10, 50);
+            doc.text(`Endereço: ${data.endereco}`, 10, 60);
+            doc.text(`Celular: ${data.celular}`, 10, 70);
+            doc.text(`Já fez aula experimental? ${data.aula_experimental}`, 10, 80);
+
+            const pdfBlob = doc.output("blob");
+            saveAs(pdfBlob, "cadastro_usuario.pdf");
+
+            // Enviar por e-mail
+            emailjs.send("service_8o2j3wb", "template_74qu9co", data)
+                .then(() => {
+                    alert("Cadastro enviado por e-mail com sucesso! PDF salvo.");
+                    document.getElementById("formularioCadastro").reset();
+                })
+                .catch(err => {
+                    alert("Erro ao enviar e-mail. PDF foi salvo mesmo assim.");
+                    console.error(err);
+                });
+        });
+    </script>
+
+</body>
+
+</html>
